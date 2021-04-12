@@ -25,6 +25,7 @@ import numpy as np
 import pickle
 from copy import copy
 from bitcoinlib.db import *
+from bitcoinlib.db import DbConnect as Db
 from bitcoinlib.encoding import *
 from bitcoinlib.keys import Address, BKeyError, HDKey, check_network_and_key, path_expand
 from bitcoinlib.mnemonic import Mnemonic

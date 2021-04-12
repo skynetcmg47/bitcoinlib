@@ -449,3 +449,23 @@ def db_update(db, version_db, code_version=BITCOINLIB_VERSION):
 
     version_db = db_update_version_id(db, code_version)
     return version_db
+
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class DbConnect(metaclass=Singleton):
+    def __init__(self, *args, **kwargs):
+        self.engine = create_engine(kwargs["db_uri"], isolation_level='READ COMMITTED')
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
+
+
+def init_db(engine):
+    Base.metadata.create_all(engine)
