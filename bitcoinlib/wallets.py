@@ -52,7 +52,7 @@ class WalletError(Exception):
         return self.msg
 
 
-def wallets_list(db_uri=None, include_cosigners=False):
+def wallets_list(db_uri=None, include_cosigners=False, session=None):
     """
     List Wallets from database
 
@@ -64,8 +64,9 @@ def wallets_list(db_uri=None, include_cosigners=False):
 
     :return dict: Dictionary of wallets defined in database
     """
+    if not session:
+        session = Db(db_uri=db_uri).session
 
-    session = Db(db_uri=db_uri).session
     wallets = session.query(DbWallet).order_by(DbWallet.id).all()
     wlst = []
     for w in wallets:
