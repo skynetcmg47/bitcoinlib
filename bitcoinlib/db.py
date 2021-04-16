@@ -149,7 +149,7 @@ class DbWallet(Base):
     """
     __tablename__ = 'wallets'
     id = Column(Integer, Sequence('wallet_id_seq'), primary_key=True, doc="Unique wallet ID")
-    name = Column(String(80), unique=True, doc="Unique wallet name")
+    name = Column(String(80), unique=True, doc="Unique wallet name", index=True)
     owner = Column(String(50), doc="Wallet owner")
     network_name = Column(String(20), ForeignKey('networks.name'), doc="Name of network, i.e.: bitcoin, litecoin")
     network = relationship("DbNetwork", doc="Link to DbNetwork object")
@@ -216,8 +216,8 @@ class DbKey(Base):
 
     """
     __tablename__ = 'keys'
-    id = Column(Integer, Sequence('key_id_seq'), primary_key=True, doc="Unique Key ID")
-    parent_id = Column(Integer, Sequence('parent_id_seq'), doc="Parent Key ID. Used in HD wallets")
+    id = Column(Integer, Sequence('key_id_seq'), primary_key=True, doc="Unique Key ID", index=True)
+    parent_id = Column(Integer, Sequence('parent_id_seq'), doc="Parent Key ID. Used in HD wallets", index=True)
     name = Column(String(80), index=True, doc="Key name string")
     account_id = Column(Integer, index=True, doc="ID of account if key is part of a HD structure")
     depth = Column(Integer,
@@ -456,7 +456,7 @@ from os import getenv
 
 db_url = getenv('BITCOINLIB_DB_URL', DEFAULT_DATABASE)
 engine = create_engine(db_url)
-Session = sessionmaker(bind=self.engine)
+Session = sessionmaker(bind=engine)
 
 
 def get_new_session():
