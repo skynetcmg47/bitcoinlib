@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from sqlalchemy import create_engine
 from sqlalchemy import (Column, Integer, BigInteger, UniqueConstraint, CheckConstraint, String, Boolean, Sequence,
                         ForeignKey, DateTime, LargeBinary)
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, close_all_sessions
 from urllib.parse import urlparse
+
 from bitcoinlib.main import *
 
 _logger = logging.getLogger(__name__)
@@ -451,21 +452,18 @@ def db_update(db, version_db, code_version=BITCOINLIB_VERSION):
     return version_db
 
 
-class Singleton(type):
-    _instances = {}
+from os import getenv
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+db_url = getenv('BITCOINLIB_DB_URL', DEFAULT_DATABASE)
+engine = create_engine(db_url)
+Session = sessionmaker(bind=self.engine)
 
 
-class DbConnect(metaclass=Singleton):
-    def __init__(self, *args, **kwargs):
-        self.engine = create_engine(kwargs["db_uri"], isolation_level='READ COMMITTED')
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
+def get_new_session():
+    return Session()
 
 
-def init_db(engine):
-    Base.metadata.create_all(engine)
+def init_db():
+    print(f"check data {DbWallet.__tablename__}")
+    if engine.dialect.has_table(engine, DbWallet.__tablename__):
+        Base.metadata.create_all(engine)

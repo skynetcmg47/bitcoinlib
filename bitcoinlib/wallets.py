@@ -25,7 +25,6 @@ import numpy as np
 import pickle
 from copy import copy
 from bitcoinlib.db import *
-from bitcoinlib.db import DbConnect as Db
 from bitcoinlib.encoding import *
 from bitcoinlib.keys import Address, BKeyError, HDKey, check_network_and_key, path_expand
 from bitcoinlib.mnemonic import Mnemonic
@@ -52,7 +51,7 @@ class WalletError(Exception):
         return self.msg
 
 
-def wallets_list(db_uri=None, include_cosigners=False, session=None):
+def wallets_list(db_uri=None, include_cosigners=False, session=get_new_session()):
     """
     List Wallets from database
 
@@ -61,6 +60,10 @@ def wallets_list(db_uri=None, include_cosigners=False, session=None):
 
     :param include_cosigners: Child wallets for multisig wallets are for internal use only and are skipped by default
     :type include_cosigners: bool
+
+    :param session: new session object
+    :type session: SQLAlchemy session
+
 
     :return dict: Dictionary of wallets defined in database
     """
@@ -108,7 +111,7 @@ def wallet_exists(wallet, db_uri=None):
 def wallet_create_or_open(
         name, keys='', owner='', network=None, account_id=0, purpose=None, scheme='bip32', sort_keys=True,
         password='', witness_type=None, encoding=None, multisig=None, sigs_required=None, cosigner_id=None,
-        key_path=None, db_uri=None):
+        key_path=None, db_uri=None, session=get_new_session()):
     """
     Create a wallet with specified options if it doesn't exist, otherwise just open
 
@@ -117,7 +120,7 @@ def wallet_create_or_open(
     See Wallets class create method for option documentation
     """
     if wallet_exists(name, db_uri=db_uri):
-        return Wallet(name, db_uri=db_uri)
+        return Wallet(name, db_uri=db_uri, session=session)
     else:
         return Wallet.create(name, keys, owner, network, account_id, purpose, scheme, sort_keys,
                              password, witness_type, encoding, multisig, sigs_required, cosigner_id,
@@ -994,9 +997,11 @@ class Wallet(object):
 
     @classmethod
     def _create(cls, name, key, owner, network, account_id, purpose, scheme, parent_id, sort_keys,
-                witness_type, encoding, multisig, sigs_required, cosigner_id, key_path, db_uri):
+                witness_type, encoding, multisig, sigs_required, cosigner_id, key_path, db_uri,
+                session=get_new_session()):
 
-        session = Db(db_uri=db_uri).session
+        if not session:
+            session = Db(db_uri=db_uri).session
         if session.query(DbWallet).filter_by(name=name).count():
             raise WalletError("Wallet with name '%s' already exists" % name)
         else:
