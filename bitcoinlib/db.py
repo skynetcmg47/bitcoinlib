@@ -464,6 +464,4 @@ def get_new_session():
 
 
 def init_db():
-    print(f"check data {DbWallet.__tablename__}")
-    if engine.dialect.has_table(engine, DbWallet.__tablename__):
-        Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
