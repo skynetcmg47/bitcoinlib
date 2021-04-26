@@ -501,6 +501,7 @@ class WalletKey(object):
 
     def set_scan_status(self, status):
         self._session.query(DbKey).filter_by(address=self.address).update({'status': status})
+        self._session.commit()
 
     def key(self):
         """
