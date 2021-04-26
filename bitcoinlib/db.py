@@ -257,6 +257,8 @@ class DbKey(Base):
                                      order_by="DbKeyMultisigChildren.key_order",
                                      primaryjoin=id == DbKeyMultisigChildren.parent_id,
                                      doc="List of children keys")
+    scan_status = Column(String(20), doc="Is it need to check new transaction on this key?")
+
 
     __table_args__ = (
         CheckConstraint(key_type.in_(['single', 'bip32', 'multisig']), name='constraint_key_types_allowed'),
