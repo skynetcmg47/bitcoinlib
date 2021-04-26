@@ -499,8 +499,8 @@ class WalletKey(object):
         self._dbkey.name = value
         self._commit()
 
-    def set_scan_status(self, address, new_status):
-        self._session.query(DbKey).filter_by(address=address).update({'status': new_status})
+    def set_scan_status(self, status):
+        self._session.query(DbKey).filter_by(address=self.address).update({'status': status})
 
     def key(self):
         """
