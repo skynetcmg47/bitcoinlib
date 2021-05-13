@@ -3439,7 +3439,7 @@ class Wallet(object):
 
     def transaction_create(self, output_arr, input_arr=None, input_key_id=None, account_id=None, network=None, fee=None,
                            min_confirms=1, max_utxos=None, locktime=0, number_of_change_outputs=1,
-                           random_output_order=True):
+                           random_output_order=True, return_fee=False):
         """
         Create new transaction with specified outputs.
 
@@ -3521,6 +3521,9 @@ class Wallet(object):
         else:
             fee_estimate = fee
 
+        # Use just for fee estimation
+        if return_fee:
+            return fee_estimate
         # Add inputs
         sequence = 0xffffffff
         if 0 < transaction.locktime < 0xffffffff:
