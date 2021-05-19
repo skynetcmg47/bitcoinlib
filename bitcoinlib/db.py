@@ -457,8 +457,10 @@ def db_update(db, version_db, code_version=BITCOINLIB_VERSION):
 from os import getenv
 
 db_url = getenv('BITCOINLIB_DB_URL', DEFAULT_DATABASE)
-engine = create_engine(db_url)
+application_name = getenv('PROJECT_NAME', 'unknown-service')
+engine = create_engine(db_url, connect_args={"application_name": application_name})
 Session = sessionmaker(bind=engine)
+
 
 
 def get_new_session():
