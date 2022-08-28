@@ -460,8 +460,9 @@ from os import getenv
 db_url = getenv('BITCOINLIB_DB_URL')
 
 if db_url:
-    application_name = getenv('PROJECT_NAME', 'unknown-service')
-    connect_args = {"application_name": application_name}
+    
+    _name = getenv('PROJECT_NAME', 'unknown-service')
+    connect_args = {} #{"application_name": application_name}
 else:
     db_url = f'sqlite:///{DEFAULT_DATABASE}'
     connect_args = {}
